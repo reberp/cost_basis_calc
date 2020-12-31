@@ -45,8 +45,9 @@ def process_trades(year):
 		profit = (lower_amt[2]*sell[3]) - (lower_amt[2]*buy[3])
 		higher_amt[2]=higher_amt[2]-lower_amt[2]
 		altering.insert(0,higher_amt)		
-
+		print("{},buy,{:.8f},{:.2f}\n{},sell,{:.8f},{:.2f}".format(buy[0],round(lower_amt[2],8),buy[3],sell[0],round(lower_amt[2],8),sell[3]))
 		total_profit=profit+total_profit
+
 
 	print(total_profit)
 
