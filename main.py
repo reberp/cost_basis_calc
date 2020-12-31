@@ -42,11 +42,9 @@ def process_trades(year):
 		lower_amt = buy if sold_more else sell
 		altering = mapping[higher_amt[1]]
 
-		tmp = higher_amt[2]
-		higher_amt[2]=lower_amt[2]
-		profit = (sell[2]*sell[3]) - (buy[2]*buy[3])
-		higher_amt[2]=tmp-higher_amt[2]
-		altering.insert(0,higher_amt)
+		profit = (lower_amt[2]*sell[3]) - (lower_amt[2]*buy[3])
+		higher_amt[2]=higher_amt[2]-lower_amt[2]
+		altering.insert(0,higher_amt)		
 
 		total_profit=profit+total_profit
 
