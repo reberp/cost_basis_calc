@@ -12,12 +12,13 @@ date,action,amount,price_per
 """
 
 import argparse
-modes=['fifo','lifo']
-buys = [] 
-sells= []
-mapping = {'buy':buys,'sell':sells}
+import datetime
+import trade 
+import tools_8949
+
 
 def load_contents(filename):
+	#could probaly just do it all inline as its read but w/e
 	fh = open(filename,'r')
 	header=fh.readline()
 	trades = fh.readlines()
@@ -31,32 +32,56 @@ def process_trades(year):
 	#take oldest buy -> match to first sale, del and repeat 
 	# if sale is more, update sale amount, create new sale and calculate profit
 	# if buy is more, update buy amount, create new buy and calculate profit
-	total_profit=0
-
+	total_profit  	= 0
+	yearly_profit 	= 0
 	while (buys!=[] and sells !=[]):
-		sell= sells.pop(0) #need to just make these classes and all of this math somewhere else. 
-		buy = buys.pop(0)
+		sell= trade.Trade(sells.pop(0))
+		buy = trade.Trade(buys.pop(0))
 
-		sold_more = True if sell[2]>=buy[2] else False
-		higher_amt = sell if sold_more else buy
-		lower_amt = buy if sold_more else sell
-		altering = mapping[higher_amt[1]]
+		traded_amt 		= trade.lower_amt_obj(buy,sell).amt
+		higher_amt_obj 	= trade.higher_amt_obj(buy,sell)
 
-		profit = (lower_amt[2]*sell[3]) - (lower_amt[2]*buy[3])
-		higher_amt[2]=higher_amt[2]-lower_amt[2]
-		altering.insert(0,higher_amt)		
-		print("{},buy,{:.8f},{:.2f}\n{},sell,{:.8f},{:.2f}".format(buy[0],round(lower_amt[2],8),buy[3],sell[0],round(lower_amt[2],8),sell[3]))
-		total_profit=profit+total_profit
+		sale_amt 		= traded_amt * sell.price_per
+		cost_basis_amt 	= traded_amt * buy.price_per
 
+		higher_amt_obj.amt = higher_amt_obj.amt-traded_amt 						#set leftover
+		buy_sell_dict[higher_amt_obj.type].insert(0,higher_amt_obj.to_list()) 	#carry leftover to next trade		
 
-	print(total_profit)
+		profit 			= sale_amt - cost_basis_amt
+		total_profit	= profit+total_profit
+		print("{},buy,{:.8f},{:.2f}\n{},sell,{:.8f},{:.2f}\t{}".format(buy.date,round(traded_amt,8),buy.price_per,sell.date,round(traded_amt,8),sell.price_per,profit))
+		
+		bought_date = datetime.date.fromisoformat(buy.date[0:10])
+		sold_date 	= datetime.date.fromisoformat(sell.date[0:10])
+		term 		= "short" if (sold_date-bought_date).days<365 else "long"
+		if sold_date.year == year:
+			yearly_profit += profit
+			trade_term_dict[term].append(trade.F8949_Trade(traded_amt,str(bought_date),buy.price_per,str(sold_date),sell.price_per))
+
+	#print(total_profit)
+	#print(yearly_profit)
+
 
 
 if __name__ == "__main__":
+
+	modes=['fifo','lifo']
+	buys = [] 
+	sells= []
+	short_8949 = []
+	long_8949 = []
+	buy_sell_dict = {'buy':buys,'sell':sells}
+	trade_term_dict =  {'short':short_8949,'long':long_8949}
+
 	parser = argparse.ArgumentParser(description='hello')
-	parser.add_argument('-f',type=str, required=False, default="test.csv")
-	parser.add_argument('-m',type=str, required=False, choices=modes, default='fifo')
-	parser.add_argument('-y',type=int, required=False, default=2020)
+	parser.add_argument('-f', help="csv of trades", type=str, required=False, default="test.csv")
+	parser.add_argument('-m', help="mode", type=str, required=False, choices=modes, default='fifo')
+	parser.add_argument('-y', help="year to calculate", type=int, required=False, default=2020)
+	parser.add_argument('-t', help="name of blank 8949", type=str, required=False, default="f8949.pdf")
+	parser.add_argument('-o', help="output 8949 filename", type=str, required=False, default='output8949.pdf')
 	args = parser.parse_args()
+
 	load_contents(args.f)
 	process_trades(args.y)
+
+	tools_8949.write_8949(trade_term_dict,args)
