@@ -66,24 +66,55 @@ def write_8949(trade_term_dict,args):
 		page_one_trades =  trade_term_dict['short'][doc_num*14:doc_num*14+14]
 		page_two_trades = trade_term_dict['long'][doc_num*14:doc_num*14+14]
 		
+		total_proceeds = 0
+		total_cost = 0 
 		if page_one_trades:
 			docfields.append(('topmostSubform[0].Page1[0].c1_1[2]',3))
-		for i in range(len(page_one_trades)):
-			pass		
 
-		if page_two_trades:
-			docfields.append(('topmostSubform[ls0].Page2[0].c2_1[2]',3))
+			for i in range(len(page_one_trades)):
+
+				row_num=i+1
+				trade = page_one_trades[i]
+				docfields.append(('topmostSubform[0].Page1[0].Table_Line1[0].Row{}[0].f1_{}[0]'.format(row_num,i*8+3),"{} {}".format(round(trade.amt,8), trade.asset )))
+				docfields.append(('topmostSubform[0].Page1[0].Table_Line1[0].Row{}[0].f1_{}[0]'.format(row_num,i*8+4),"{}".format(trade.bought_date)))
+				docfields.append(('topmostSubform[0].Page1[0].Table_Line1[0].Row{}[0].f1_{}[0]'.format(row_num,i*8+5),"{}".format(trade.sold_date)))
+				docfields.append(('topmostSubform[0].Page1[0].Table_Line1[0].Row{}[0].f1_{}[0]'.format(row_num,i*8+6),"{}".format(round(trade.sold_at*trade.amt,2))))
+				docfields.append(('topmostSubform[0].Page1[0].Table_Line1[0].Row{}[0].f1_{}[0]'.format(row_num,i*8+7),"{}".format(round(trade.bought_at*trade.amt,2))))
+				docfields.append(('topmostSubform[0].Page1[0].Table_Line1[0].Row{}[0].f1_{}[0]'.format(row_num,i*8+10),"{}".format(round(trade.profit,2))))
+				
+				total_proceeds += trade.sold_at*trade.amt
+				total_cost += trade.bought_at*trade.amt		
+
+			docfields.append(('topmostSubform[ls0].Page1[0].c2_1[2]',3))			
+			total_profit = round(total_proceeds - total_cost,8)
+			docfields.append(('topmostSubform[0].Page1[0].f1_115[0]',round(total_proceeds,2)))
+			docfields.append(('topmostSubform[0].Page1[0].f1_116[0]',round(total_cost,2)))
+			docfields.append(('topmostSubform[0].Page1[0].f1_119[0]',round(total_profit,2)))
 		
-		for i in range(len(page_two_trades)):
-			row_num=i+1
-			trade = page_two_trades[i]
-			docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+3),"{} {}".format(round(trade.amt,8), trade.asset )))
-			docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+4),"{}".format(trade.bought_date)))
-			docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+5),"{}".format(trade.sold_date)))
-			docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+6),"{}".format(round(trade.sold_at*trade.amt,2))))
-			docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+7),"{}".format(round(trade.bought_at*trade.amt,2))))
-			docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+10),"{}".format(round(trade.profit,2))))
-			#bottom rows
+		total_proceeds = 0
+		total_cost = 0 
+			
+		if page_two_trades:
+
+			for i in range(len(page_two_trades)):
+				row_num=i+1
+				trade = page_two_trades[i]
+				docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+3),"{} {}".format(round(trade.amt,8), trade.asset )))
+				docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+4),"{}".format(trade.bought_date)))
+				docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+5),"{}".format(trade.sold_date)))
+				docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+6),"{}".format(round(trade.sold_at*trade.amt,2))))
+				docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+7),"{}".format(round(trade.bought_at*trade.amt,2))))
+				docfields.append(('topmostSubform[0].Page2[0].Table_Line1[0].Row{}[0].f2_{}[0]'.format(row_num,i*8+10),"{}".format(round(trade.profit,2))))
+				
+				total_proceeds += trade.sold_at*trade.amt
+				total_cost += trade.bought_at*trade.amt		
+
+			docfields.append(('topmostSubform[ls0].Page2[0].c2_1[2]',3))			
+			total_profit = round(total_proceeds - total_cost,8)
+			docfields.append(('topmostSubform[0].Page2[0].f2_115[0]',round(total_proceeds,2)))
+			docfields.append(('topmostSubform[0].Page2[0].f2_116[0]',round(total_cost,2)))
+			docfields.append(('topmostSubform[0].Page2[0].f2_119[0]',round(total_profit,2)))
+
 
 		write_to_binary(docfields,doc_num+1)
 		combine_into_doc(args,doc_num)

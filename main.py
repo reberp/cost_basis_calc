@@ -49,18 +49,15 @@ def process_trades(year):
 
 		profit 			= sale_amt - cost_basis_amt
 		total_profit	= profit+total_profit
-		print("{},buy,{:.8f},{:.2f}\n{},sell,{:.8f},{:.2f}\t{}".format(buy.date,round(traded_amt,8),buy.price_per,sell.date,round(traded_amt,8),sell.price_per,profit))
+		#print("{},buy,{:.8f},{:.2f}\n{},sell,{:.8f},{:.2f}\t{}".format(buy.date,round(traded_amt,8),buy.price_per,sell.date,round(traded_amt,8),sell.price_per,profit))
 		
 		bought_date = datetime.date.fromisoformat(buy.date[0:10])
 		sold_date 	= datetime.date.fromisoformat(sell.date[0:10])
 		term 		= "short" if (sold_date-bought_date).days<365 else "long"
+
 		if sold_date.year == year:
 			yearly_profit += profit
 			trade_term_dict[term].append(trade.F8949_Trade(traded_amt,str(bought_date),buy.price_per,str(sold_date),sell.price_per))
-
-	#print(total_profit)
-	#print(yearly_profit)
-
 
 
 if __name__ == "__main__":

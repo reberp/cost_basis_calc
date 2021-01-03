@@ -36,7 +36,7 @@ class F8949_Trade(Trade):
 		self.sold_at = sold_at
 		self.profit = (sold_at*amt) - (bought_at*amt)
 		self.asset=asset
-		print("{}: Bought {} @ {} per. {}: Sold @ {} per".format(self.bought_date,round(self.amt,8),self.bought_at,self.sold_date,self.sold_at))
+		#print("{}: Bought {} @ {} per. {}: Sold @ {} per".format(self.bought_date,round(self.amt,8),self.bought_at,self.sold_date,self.sold_at))
 
 	def __repr__(self):
 		return repr("{}: Bought {} @ {} per. {}: Sold @ {} per".format(self.bought_date,round(self.amt,8),self.bought_at,self.sold_date,self.sold_at))
