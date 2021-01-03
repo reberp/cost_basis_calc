@@ -40,12 +40,14 @@ def process_trades(year):
 
 		traded_amt 		= trade.lower_amt_obj(buy,sell).amt
 		higher_amt_obj 	= trade.higher_amt_obj(buy,sell)
-
 		sale_amt 		= traded_amt * sell.price_per
 		cost_basis_amt 	= traded_amt * buy.price_per
 
 		higher_amt_obj.amt = higher_amt_obj.amt-traded_amt 						#set leftover
 		buy_sell_dict[higher_amt_obj.type].insert(0,higher_amt_obj.to_list()) 	#carry leftover to next trade		
+
+		if traded_amt==0.0: #issue when evened out exactly but continuing trades 
+			continue
 
 		profit 			= sale_amt - cost_basis_amt
 		total_profit	= profit+total_profit
