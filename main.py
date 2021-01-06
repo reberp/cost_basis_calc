@@ -17,8 +17,9 @@ import trade
 import tools_8949
 
 
-def load_contents(filename):
+def load_contents(args):
 	#could probaly just do it all inline as its read but w/e
+	filename = args.f
 	fh = open(filename,'r')
 	header=fh.readline()
 	trades = fh.readlines()
@@ -27,6 +28,7 @@ def load_contents(filename):
 		line[2]=float(line[2])
 		line[3]=float(line[3])
 		buys.append(line) if 'buy' in line else sells.append(line)
+	#mode check to flip? 
 
 def process_trades(year):
 	#take oldest buy -> match to first sale, del and repeat 
@@ -64,6 +66,12 @@ def process_trades(year):
 
 if __name__ == "__main__":
 
+	#TODO: Fix:
+	# lifo to check the timelines and actually work - can flip buys list but dates get all boned. 
+	# one csv with different assets
+	# 'convert' trades in csv
+	# combine into single pdf if multiple docs
+
 	modes=['fifo','lifo']
 	buys = [] 
 	sells= []
@@ -80,7 +88,7 @@ if __name__ == "__main__":
 	parser.add_argument('-o', help="output 8949 filename", type=str, required=False, default='output8949.pdf')
 	args = parser.parse_args()
 
-	load_contents(args.f)
+	load_contents(args)
 	process_trades(args.y)
 
 	tools_8949.write_8949(trade_term_dict,args)
